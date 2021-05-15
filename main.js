@@ -111,6 +111,24 @@ const deleteArticleById = (req, res) => {
   }
 };
 app.delete("/articles/:id", deleteArticleById);
+
+//CARD#7>>>deleteArticlesByAuthor:
+
+const deleteArticlesByAuthor = (req, res) => {
+    for (let i = 0; i < articles.length; i++) {
+      if (req.body.author === articles[i].author) {
+        const success = true;
+        const massage = `Success delete article with author =>${req.body.author}`;
+        const newArticle = { success, massage };
+        articles.splice(i, 1);
+        res.json(newArticle);
+        res.status(201);
+      }
+    }
+  };
+  app.delete("/articles", deleteArticlesByAuthor);
+
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
