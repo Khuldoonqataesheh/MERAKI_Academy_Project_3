@@ -79,6 +79,25 @@ res.json(newArticle)
     res.status(201);
 }
   app.post("/articles", createNewArticle);
+  //CARD#5>>>updateAnArticleById:
+
+  const updateAnArticleById = (req, res) => {
+    const id = req.params.id;
+    const title = req.body.title;
+    const description = req.body.description;
+    const author = req.body.author;
+  
+    const newArticle = {id, title, description,author};
+    for(let i = 0 ; i<articles.length ; i++){
+        if(newArticle.id==articles[i].id){
+            articles.splice(i,1,newArticle)
+            
+        }
+    }
+    res.json(newArticle)
+    res.status(201);
+}
+  app.put("/articles/:id", updateAnArticleById);
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
   });
