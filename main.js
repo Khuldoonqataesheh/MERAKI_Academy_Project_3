@@ -49,6 +49,16 @@ const getArticlesByAuthor = (req, res) => {
 }
   app.get("/articles/search_1", getArticlesByAuthor);
 
+  //CARD#3>>>getAnArticleById:
+  const getArticlesById = (req, res) => {
+    const id = req.query.id
+    articlesById = articles.filter((elem)=>{   
+        return elem.id == id
+    })
+    res.json(articlesById);
+    res.status(200);
+}
+  app.get("/articles/search_2", getArticlesById);
   
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
