@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const port = 5000;
-
+const { uuid } = require('uuidv4');
 app.use(express.json());
 
 const articles = [
@@ -59,7 +59,26 @@ const getArticlesByAuthor = (req, res) => {
     res.status(200);
 }
   app.get("/articles/search_2", getArticlesById);
-  
+
+ //CARD#4>>>createNewArticle:
+
+ const createNewArticle = (req, res) => {
+    const title = req.body.title;
+    const description = req.body.description;
+    const author = req.body.author;
+    const id = uuid();
+    const newArticle = { title, description,author,id};
+    for(let i = 0 ; i<articles.length ; i++){
+        if(newArticle.id===articles[i].id){
+            id = uuid()
+        }
+    }
+   
+    articles.push(newArticle)
+res.json(newArticle)
+    res.status(201);
+}
+  app.post("/articles", createNewArticle);
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
   });
