@@ -104,7 +104,7 @@ app.put("/articles/:id", updateAnArticleById);*/
 
 //Server (express) [Level 1] :CARD#6>>>deleteArticleById:
 
-const deleteArticleById = (req, res) => {
+/*const deleteArticleById = (req, res) => {
   for (let i = 0; i < articles.length; i++) {
     if (req.params.id == articles[i].id) {
       const success = true;
@@ -117,7 +117,7 @@ const deleteArticleById = (req, res) => {
     }
   }
 };
-app.delete("/articles/:id", deleteArticleById);
+app.delete("/articles/:id", deleteArticleById);*/
 
 //Server (express) [Level 1] :CARD#7>>>deleteArticlesByAuthor:
 
@@ -266,6 +266,20 @@ const updateAnArticleById = (req, res) => {
 };
 app.put("/articles/id", updateAnArticleById);
 
+//MongoDB [Level 1] :CARD#6>>>deleteArticleById:
+
+const deleteArticleById = (req, res) => {
+  const id  = req.body.id
+  Articles.findOneAndRemove({_id:id})
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.delete("/articles/id", deleteArticleById);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
