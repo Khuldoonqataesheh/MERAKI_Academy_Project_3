@@ -84,7 +84,7 @@ app.post("/articles", createNewArticle);*/
 
 //Server (express) [Level 1] :CARD#5>>>updateAnArticleById:
 
-const updateAnArticleById = (req, res) => {
+/*const updateAnArticleById = (req, res) => {
   const id = req.params.id;
   const title = req.body.title;
   const description = req.body.description;
@@ -100,7 +100,7 @@ const updateAnArticleById = (req, res) => {
   res.json(newArticle);
   
 };
-app.put("/articles/:id", updateAnArticleById);
+app.put("/articles/:id", updateAnArticleById);*/
 
 //Server (express) [Level 1] :CARD#6>>>deleteArticleById:
 
@@ -213,9 +213,18 @@ app.get("/articles", getAllArticles);
 
 //MongoDB [Level 1] :CARD#3>>>getArticlesByAuthor:
 
-const getArticlesByAuthor = (req, res) => {
+const getArticlesByAuthor = async (req, res) => {
   const {author} = req.body;
-  Articles.findOne({ _id: author })
+  let author1 
+  await Users.findOne({ firstName: author })
+  .then((result) => {
+    author1 = result;
+    console.log(author1);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+  Articles.find({ author: author1._id})
   .then((result) => {
     res.status(200);
     res.json(result);
@@ -241,6 +250,23 @@ const getArticlesById = (req, res) => {
   });
 };
 app.get("/articles/search_2", getArticlesById);
+
+//MongoDB [Level 1] :CARD#5>>>updateAnArticleById:
+
+const updateAnArticleById = (req, res) => {
+  const {id, title, description} = req.body;
+ Articles.findOneAndUpdate({_id:id}, { title: title, description: description})
+    .then((result) => {
+      res.status(200);
+      res.json("article updated");
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.put("/articles/id", updateAnArticleById);
+
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
