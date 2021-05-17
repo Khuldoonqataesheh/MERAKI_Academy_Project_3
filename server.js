@@ -121,7 +121,7 @@ app.delete("/articles/:id", deleteArticleById);*/
 
 //Server (express) [Level 1] :CARD#7>>>deleteArticlesByAuthor:
 
-const deleteArticlesByAuthor = (req, res) => {
+/*const deleteArticlesByAuthor = (req, res) => {
   for (let i = 0; i < articles.length; i++) {
     if (req.body.author === articles[i].author) {
       const success = true;
@@ -134,7 +134,9 @@ const deleteArticlesByAuthor = (req, res) => {
     }
   }
 };
-app.delete("/articles", deleteArticlesByAuthor);
+app.delete("/articles", deleteArticlesByAuthor);*/
+
+//------------------------------------------------------------------------------------------------
 
 //MongoDB [Level 1] :CARD#0>>>createNewAuthor:
 
@@ -154,7 +156,6 @@ const createNewAuthor = (req, res) => {
     .then((result) => {
       res.status(201);
       res.json(result);
-     
     })
     .catch((err) => {
       res.json(err);
@@ -165,7 +166,7 @@ app.post("/users", createNewAuthor);
 //MongoDB [Level 1] :CARD#1>>>createNewAuthor:
 
 const createNewArticle = async (req, res) => {
-  const { title, description, author} = req.body;
+  const { title, description, author } = req.body;
   let user1;
 
   await Users.findOne({ _id: author })
@@ -177,23 +178,21 @@ const createNewArticle = async (req, res) => {
       console.log(err);
     });
 
-  const newArticle =  new Articles({
+  const newArticle = new Articles({
     title,
     description,
-    author: user1._id
+    author: user1._id,
   });
-console.log(newArticle);
+  console.log(newArticle);
   newArticle
     .save()
     .then((result) => {
       res.status(201);
       res.json(result);
-     
     })
     .catch((err) => {
       res.json(err);
     });
-  
 };
 app.post("/articles", createNewArticle);
 
@@ -201,61 +200,65 @@ app.post("/articles", createNewArticle);
 
 const getAllArticles = (req, res) => {
   Articles.find({})
-  .then((result) => {
-    res.status(200);
-    res.json(result);
-  })
-  .catch((err) => {
-    res.json(err);
-  });
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 };
 app.get("/articles", getAllArticles);
 
 //MongoDB [Level 1] :CARD#3>>>getArticlesByAuthor:
 
 const getArticlesByAuthor = async (req, res) => {
-  const {author} = req.body;
-  let author1 
+  const { author } = req.body;
+  let author1;
   await Users.findOne({ firstName: author })
-  .then((result) => {
-    author1 = result;
-    console.log(author1);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-  Articles.find({ author: author1._id})
-  .then((result) => {
-    res.status(200);
-    res.json(result);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+    .then((result) => {
+      author1 = result;
+      console.log(author1);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  Articles.find({ author: author1._id })
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 app.get("/articles/search_1", getArticlesByAuthor);
 
 //MongoDB [Level 1] :CARD#4>>>getArticlesById:
 
 const getArticlesById = (req, res) => {
-  const {id} = req.body;
-  Articles.findOne({ _id: id }).populate("author","firstName")
-  .exec()
-  .then((result) => {
-    res.status(200);
-    res.json(result);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+  const { id } = req.body;
+  Articles.findOne({ _id: id })
+    .populate("author", "firstName")
+    .exec()
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 app.get("/articles/search_2", getArticlesById);
 
 //MongoDB [Level 1] :CARD#5>>>updateAnArticleById:
 
 const updateAnArticleById = (req, res) => {
-  const {id, title, description} = req.body;
- Articles.findOneAndUpdate({_id:id}, { title: title, description: description})
+  const { id, title, description } = req.body;
+  Articles.findOneAndUpdate(
+    { _id: id },
+    { title: title, description: description }
+  )
     .then((result) => {
       res.status(200);
       res.json("article updated");
@@ -269,8 +272,8 @@ app.put("/articles/id", updateAnArticleById);
 //MongoDB [Level 1] :CARD#6>>>deleteArticleById:
 
 const deleteArticleById = (req, res) => {
-  const id  = req.body.id
-  Articles.findOneAndRemove({_id:id})
+  const { id } = req.body.id;
+  Articles.findOneAndRemove({ _id: id })
     .then((result) => {
       res.status(200);
       res.json(result);
@@ -281,6 +284,29 @@ const deleteArticleById = (req, res) => {
 };
 app.delete("/articles/id", deleteArticleById);
 
+//MongoDB [Level 1] :CARD#7>>>deleteArticlesByAuthor:
+
+const deleteArticlesByAuthor = async (req, res) => {
+  const { author } = req.body;
+  let author1;
+  await Users.findOne({ firstName: author })
+    .then((result) => {
+      author1 = result;
+      console.log(author1);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  Articles.findOneAndRemove({ author: author1._id })
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+app.delete("/articles", deleteArticlesByAuthor);
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
