@@ -37,7 +37,7 @@ app.get("/articles", getAllArticles);*/
 
 //Server (express) [Level 1] :CARD#2>>>getArticlesByAuthor:
 
-const getArticlesByAuthor = (req, res) => {
+/*const getArticlesByAuthor = (req, res) => {
   const author = req.query.author;
   articlesByAuthor = articles.filter((elem) => {
     return elem.author === author;
@@ -46,7 +46,7 @@ const getArticlesByAuthor = (req, res) => {
   res.json(articlesByAuthor);
  
 };
-app.get("/articles/search_1", getArticlesByAuthor);
+app.get("/articles/search_1", getArticlesByAuthor);*/
 
 //Server (express) [Level 1] :CARD#3>>>getAnArticleById:
 
@@ -210,6 +210,21 @@ const getAllArticles = (req, res) => {
   });
 };
 app.get("/articles", getAllArticles);
+
+//MongoDB [Level 1] :CARD#3>>>getAllArticles:
+
+const getArticlesByAuthor = (req, res) => {
+  const {author} = req.body;
+  Articles.findOne({ _id: author })
+  .then((result) => {
+    res.status(200);
+    res.json(result);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+};
+app.get("/articles/search_1", getArticlesByAuthor);
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
