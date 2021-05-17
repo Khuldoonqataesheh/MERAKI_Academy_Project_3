@@ -63,7 +63,7 @@ app.get("/articles/search_2", getArticlesById);
 
 //Server (express) [Level 1] :CARD#4>>>createNewArticle:
 
-const createNewArticle = (req, res) => {
+/*const createNewArticle = (req, res) => {
   const title = req.body.title;
   const description = req.body.description;
   const author = req.body.author;
@@ -80,7 +80,7 @@ const createNewArticle = (req, res) => {
   res.json(newArticle);
   
 };
-app.post("/articles", createNewArticle);
+app.post("/articles", createNewArticle);*/
 
 //Server (express) [Level 1] :CARD#5>>>updateAnArticleById:
 
@@ -136,7 +136,7 @@ const deleteArticlesByAuthor = (req, res) => {
 };
 app.delete("/articles", deleteArticlesByAuthor);
 
-//MongoDB [Level 1] :CARD#1>>>createNewAuthor:
+//MongoDB [Level 1] :CARD#0>>>createNewAuthor:
 
 const createNewAuthor = (req, res) => {
   const { firstName, lastName, age, country, email, password } = req.body;
@@ -161,6 +161,41 @@ const createNewAuthor = (req, res) => {
     });
 };
 app.post("/users", createNewAuthor);
+
+//MongoDB [Level 1] :CARD#1>>>createNewAuthor:
+
+const createNewArticle = async (req, res) => {
+  const { title, description, author} = req.body;
+  let user1;
+
+  await Users.findOne({ _id: author })
+    .then((result) => {
+      user1 = result;
+      console.log(user1);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  const newArticle =  new Articles({
+    title,
+    description,
+    author: user1._id
+  });
+console.log(newArticle);
+  newArticle
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+     
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+  
+};
+app.post("/articles", createNewArticle);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

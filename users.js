@@ -11,8 +11,10 @@ const users  = new mongoose.Schema({
   const articles   = new mongoose.Schema({
     title: { type: String},
     description: { type: String},
-    author: { type:mongoose.Schema.ObjectId,ref:"Role" },
+    author: {type:mongoose.Schema.ObjectId,ref:"User" },
   });
+
+
 
   const Users = mongoose.model("User", users);
   const Articles = mongoose.model("Article", articles);
