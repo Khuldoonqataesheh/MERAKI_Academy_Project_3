@@ -50,7 +50,7 @@ app.get("/articles/search_1", getArticlesByAuthor);*/
 
 //Server (express) [Level 1] :CARD#3>>>getAnArticleById:
 
-const getArticlesById = (req, res) => {
+/*const getArticlesById = (req, res) => {
   const id = req.query.id;
   articlesById = articles.filter((elem) => {
     return elem.id == id;
@@ -59,7 +59,7 @@ const getArticlesById = (req, res) => {
   res.json(articlesById);
  
 };
-app.get("/articles/search_2", getArticlesById);
+app.get("/articles/search_2", getArticlesById);*/
 
 //Server (express) [Level 1] :CARD#4>>>createNewArticle:
 
@@ -211,7 +211,7 @@ const getAllArticles = (req, res) => {
 };
 app.get("/articles", getAllArticles);
 
-//MongoDB [Level 1] :CARD#3>>>getAllArticles:
+//MongoDB [Level 1] :CARD#3>>>getArticlesByAuthor:
 
 const getArticlesByAuthor = (req, res) => {
   const {author} = req.body;
@@ -225,6 +225,22 @@ const getArticlesByAuthor = (req, res) => {
   });
 };
 app.get("/articles/search_1", getArticlesByAuthor);
+
+//MongoDB [Level 1] :CARD#4>>>getArticlesById:
+
+const getArticlesById = (req, res) => {
+  const {id} = req.body;
+  Articles.findOne({ _id: id }).populate("author","firstName")
+  .exec()
+  .then((result) => {
+    res.status(200);
+    res.json(result);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+};
+app.get("/articles/search_2", getArticlesById);
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
