@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("./project_3_v01");
-const { Users, Articles} = require("./users");
+const { Users, Articles } = require("./users");
 const app = express();
 const port = 5000;
 const { uuid } = require("uuidv4");
@@ -27,7 +27,7 @@ const articles = [
   },
 ];
 
-//CARD#1>>>getAllArticles:
+//Server (express) [Level 1] :CARD#1>>>getAllArticles:
 
 const getAllArticles = (req, res) => {
   res.status(200);
@@ -35,31 +35,33 @@ const getAllArticles = (req, res) => {
 };
 app.get("/articles", getAllArticles);
 
-//CARD#2>>>getArticlesByAuthor:
+//Server (express) [Level 1] :CARD#2>>>getArticlesByAuthor:
 
 const getArticlesByAuthor = (req, res) => {
   const author = req.query.author;
   articlesByAuthor = articles.filter((elem) => {
     return elem.author === author;
   });
-  res.json(articlesByAuthor);
   res.status(200);
+  res.json(articlesByAuthor);
+ 
 };
 app.get("/articles/search_1", getArticlesByAuthor);
 
-//CARD#3>>>getAnArticleById:
+//Server (express) [Level 1] :CARD#3>>>getAnArticleById:
 
 const getArticlesById = (req, res) => {
   const id = req.query.id;
   articlesById = articles.filter((elem) => {
     return elem.id == id;
   });
-  res.json(articlesById);
   res.status(200);
+  res.json(articlesById);
+ 
 };
 app.get("/articles/search_2", getArticlesById);
 
-//CARD#4>>>createNewArticle:
+//Server (express) [Level 1] :CARD#4>>>createNewArticle:
 
 const createNewArticle = (req, res) => {
   const title = req.body.title;
@@ -74,12 +76,13 @@ const createNewArticle = (req, res) => {
   }
 
   articles.push(newArticle);
-  res.json(newArticle);
   res.status(201);
+  res.json(newArticle);
+  
 };
 app.post("/articles", createNewArticle);
 
-//CARD#5>>>updateAnArticleById:
+//Server (express) [Level 1] :CARD#5>>>updateAnArticleById:
 
 const updateAnArticleById = (req, res) => {
   const id = req.params.id;
@@ -93,12 +96,13 @@ const updateAnArticleById = (req, res) => {
       articles.splice(i, 1, newArticle);
     }
   }
+  res.status(200);
   res.json(newArticle);
-  res.status(201);
+  
 };
 app.put("/articles/:id", updateAnArticleById);
 
-//CARD#6>>>deleteArticleById:
+//Server (express) [Level 1] :CARD#6>>>deleteArticleById:
 
 const deleteArticleById = (req, res) => {
   for (let i = 0; i < articles.length; i++) {
@@ -107,29 +111,56 @@ const deleteArticleById = (req, res) => {
       const massage = `Success delete article with id =>${req.params.id}`;
       const newArticle = { success, massage };
       articles.splice(i, 1);
+      res.status(200);
       res.json(newArticle);
-      res.status(201);
+      
     }
   }
 };
 app.delete("/articles/:id", deleteArticleById);
 
-//CARD#7>>>deleteArticlesByAuthor:
+//Server (express) [Level 1] :CARD#7>>>deleteArticlesByAuthor:
 
 const deleteArticlesByAuthor = (req, res) => {
-    for (let i = 0; i < articles.length; i++) {
-      if (req.body.author === articles[i].author) {
-        const success = true;
-        const massage = `Success delete article with author =>${req.body.author}`;
-        const newArticle = { success, massage };
-        articles.splice(i, 1);
-        res.json(newArticle);
-        res.status(201);
-      }
+  for (let i = 0; i < articles.length; i++) {
+    if (req.body.author === articles[i].author) {
+      const success = true;
+      const massage = `Success delete article with author =>${req.body.author}`;
+      const newArticle = { success, massage };
+      articles.splice(i, 1);
+      res.status(200);
+      res.json(newArticle);
+      
     }
-  };
-  app.delete("/articles", deleteArticlesByAuthor);
+  }
+};
+app.delete("/articles", deleteArticlesByAuthor);
 
+//MongoDB [Level 1] :CARD#1>>>createNewAuthor:
+
+const createNewAuthor = (req, res) => {
+  const { firstName, lastName, age, country, email, password } = req.body;
+  const newAuthor = new Users({
+    firstName,
+    lastName,
+    age,
+    country,
+    email,
+    password,
+  });
+
+  newAuthor
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+     
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.post("/users", createNewAuthor);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
