@@ -29,11 +29,11 @@ const articles = [
 
 //Server (express) [Level 1] :CARD#1>>>getAllArticles:
 
-const getAllArticles = (req, res) => {
+/*const getAllArticles = (req, res) => {
   res.status(200);
   res.json(articles);
 };
-app.get("/articles", getAllArticles);
+app.get("/articles", getAllArticles);*/
 
 //Server (express) [Level 1] :CARD#2>>>getArticlesByAuthor:
 
@@ -197,6 +197,19 @@ console.log(newArticle);
 };
 app.post("/articles", createNewArticle);
 
+//MongoDB [Level 1] :CARD#2>>>getAllArticles:
+
+const getAllArticles = (req, res) => {
+  Articles.find({})
+  .then((result) => {
+    res.status(200);
+    res.json(result);
+  })
+  .catch((err) => {
+    res.json(err);
+  });
+};
+app.get("/articles", getAllArticles);
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
