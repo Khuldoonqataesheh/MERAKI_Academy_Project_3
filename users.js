@@ -17,7 +17,7 @@ const users  = new mongoose.Schema({
 
   const comments   = new mongoose.Schema({
     comment: { type: String},
-    commenter: {type:mongoose.Schema.ObjectId,ref:"Comment" },
+    commenter: {type:mongoose.Schema.ObjectId,ref:"User" },
   });
    
 

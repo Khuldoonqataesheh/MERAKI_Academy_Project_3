@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("./project_3_v01");
-const { Users, Articles ,Comments} = require("./users");
+const { Users, Articles, Comments } = require("./users");
 const app = express();
 const port = 5000;
 const { uuid } = require("uuidv4");
@@ -183,7 +183,6 @@ const createNewArticle = async (req, res) => {
     description,
     author: user1._id,
   });
-  console.log(newArticle);
   newArticle
     .save()
     .then((result) => {
@@ -310,14 +309,14 @@ app.delete("/articles", deleteArticlesByAuthor);
 
 //Server (express) [Level 2] :CARD#2>>>login:
 
-const login =  async (req, res) => {
-  const {email, password} = req.body;
-  await Users.findOne({ email: email, password: password })
+const login = (req, res) => {
+  const { email, password } = req.body;
+  Users.findOne({ email: email, password: password })
     .then((result) => {
-      if(result){
+      if (result) {
         res.status(200);
-        res.json( "Valid login credentials");
-      }else{
+        res.json("Valid login credentials");
+      } else {
         res.status(401);
         res.json("Invalid login credentials");
       }
@@ -328,6 +327,36 @@ const login =  async (req, res) => {
     });
 };
 app.post("/login", login);
+
+//Server (express) [Level 2] :CARD#3>>>createNewComment:
+
+const createNewComment = async (req, res) => {
+  const { comment, commenter } = req.body;
+  let comment1;
+  await Users.findOne({ _id: commenter })
+    .then((result) => {
+      comment1 = result;
+      console.log(comment1);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  const newComment = new Comments({
+    comment,
+    commenter: comment1._id,
+  });
+  newComment
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.post("/articles/:id/comments", createNewComment);
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
