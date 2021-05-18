@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("./project_3_v01");
-const { Users, Articles } = require("./users");
+const { Users, Articles ,Comments} = require("./users");
 const app = express();
 const port = 5000;
 const { uuid } = require("uuidv4");
@@ -138,7 +138,7 @@ app.delete("/articles", deleteArticlesByAuthor);*/
 
 //------------------------------------------------------------------------------------------------
 
-//MongoDB [Level 1] :CARD#0>>>createNewAuthor:
+//Server (express) [Level 2] :CARD#1>>>createNewAuthor:
 
 const createNewAuthor = (req, res) => {
   const { firstName, lastName, age, country, email, password } = req.body;
@@ -163,7 +163,7 @@ const createNewAuthor = (req, res) => {
 };
 app.post("/users", createNewAuthor);
 
-//MongoDB [Level 1] :CARD#1>>>createNewAuthor:
+//MongoDB [Level 1] :CARD#1>>>createNewArticle:
 
 const createNewArticle = async (req, res) => {
   const { title, description, author } = req.body;
@@ -307,6 +307,27 @@ const deleteArticlesByAuthor = async (req, res) => {
     });
 };
 app.delete("/articles", deleteArticlesByAuthor);
+
+//Server (express) [Level 2] :CARD#2>>>login:
+
+const login =  async (req, res) => {
+  const {email, password} = req.body;
+  await Users.findOne({ email: email, password: password })
+    .then((result) => {
+      if(result){
+        res.status(200);
+        res.json( "Valid login credentials");
+      }else{
+        res.status(401);
+        res.json("Invalid login credentials");
+      }
+    })
+    .catch((err) => {
+      res.status(401);
+      res.json("Invalid login credentials");
+    });
+};
+app.post("/login", login);
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
