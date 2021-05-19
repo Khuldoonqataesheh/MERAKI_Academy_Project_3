@@ -1,8 +1,11 @@
 const express = require("express");
+const port = 5000;
 const db = require("./project_3_v01");
 const { Users, Articles, Comments } = require("./users");
 const app = express();
-const port = 5000;
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const { uuid } = require("uuidv4");
 app.use(express.json());
 
@@ -140,28 +143,28 @@ app.delete("/articles", deleteArticlesByAuthor);*/
 
 //Server (express) [Level 2] :CARD#1>>>createNewAuthor:
 
-const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password } = req.body;
-  const newAuthor = new Users({
-    firstName,
-    lastName,
-    age,
-    country,
-    email,
-    password,
-  });
+// const createNewAuthor = (req, res) => {
+//   const { firstName, lastName, age, country, email, password } = req.body;
+//   const newAuthor = new Users({
+//     firstName,
+//     lastName,
+//     age,
+//     country,
+//     email,
+//     password,
+//   });
 
-  newAuthor
-    .save()
-    .then((result) => {
-      res.status(201);
-      res.json(result);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-};
-app.post("/users", createNewAuthor);
+//   newAuthor
+//     .save()
+//     .then((result) => {
+//       res.status(201);
+//       res.json(result);
+//     })
+//     .catch((err) => {
+//       res.json(err);
+//     });
+// };
+// app.post("/users", createNewAuthor);
 
 //MongoDB [Level 1] :CARD#1>>>createNewArticle:
 
@@ -331,6 +334,7 @@ app.post("/login", login);
 //Server (express) [Level 2] :CARD#3>>>createNewComment:
 
 const createNewComment = async (req, res) => {
+  id = req.params.id
   const { comment, commenter } = req.body;
   let comment1;
   await Users.findOne({ _id: commenter })
@@ -350,12 +354,43 @@ const createNewComment = async (req, res) => {
     .then((result) => {
       res.status(201);
       res.json(result);
+      Articles.findOneAndUpdate({ _id: id }, { $push: { comments: newComment } },
+        { new: true }).then((result) => {
+          res.json(result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     })
     .catch((err) => {
       res.json(err);
     });
 };
 app.post("/articles/:id/comments", createNewComment);
+
+//Server (express) [Level 3] :CARD#1>>>createNewAuthor:
+
+const createNewAuthor = (req, res) => {
+  const { firstName, lastName, age, country, email, password } = req.body;
+  const newAuthor = new Users({
+    firstName,
+    lastName,
+    age,
+    country,
+    email,
+    password,
+  });
+  newAuthor
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.post("/users", createNewAuthor);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
