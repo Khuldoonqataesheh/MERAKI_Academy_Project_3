@@ -411,6 +411,7 @@ const login = async (req, res) => {
           const payload = {
             userId: user._id,
             country: user.country,
+            role: user.role
           };
           const options = {
             expiresIn: "60min",
@@ -438,22 +439,26 @@ app.post("/login", login);
 
 //3.A Authentication :CARD#3>>>createNewComment [level 2]:
 
+const authentication = (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
+  jwt.verify(token, secret, (err, result) => {
+    if (err) {
+      err = {
+        message: "The token is in valid or expired",
+        status: 403,
+      };
+      if(result){
+        
+      }
+      res.status(403);
+      return res.json(err);
+    }
+  });
+};
+
 const createNewComment = async (req, res) => {
   id = req.params.id;
   const { comment, commenter } = req.body;
-  const authentication = (req, res) => {
-    const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, secret, (err, result) => {
-      if (err) {
-        err = {
-          message: "The token is in valid or expired",
-          status: 403,
-        };
-        res.status(403);
-        return res.json(err);
-      }
-    });
-  };
   authentication(req, res);
   let comment1;
   await Users.findOne({ _id: commenter })
