@@ -334,44 +334,44 @@ app.delete("/articles", deleteArticlesByAuthor);
 
 //Server (express) [Level 2] :CARD#3>>>createNewComment:
 
-const createNewComment = async (req, res) => {
-  id = req.params.id;
-  const { comment, commenter } = req.body;
-  let comment1;
-  await Users.findOne({ _id: commenter })
-    .then((result) => {
-      comment1 = result;
-      console.log(comment1);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  const newComment = new Comments({
-    comment,
-    commenter: comment1._id,
-  });
-  newComment
-    .save()
-    .then((result) => {
-      res.status(201);
-      res.json(result);
-      Articles.findOneAndUpdate(
-        { _id: id },
-        { $push: { comments: newComment } },
-        { new: true }
-      )
-        .then((result) => {
-          res.json(result);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-};
-app.post("/articles/:id/comments", createNewComment);
+// const createNewComment = async (req, res) => {
+//   id = req.params.id;
+//   const { comment, commenter } = req.body;
+//   let comment1;
+//   await Users.findOne({ _id: commenter })
+//     .then((result) => {
+//       comment1 = result;
+//       console.log(comment1);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+//   const newComment = new Comments({
+//     comment,
+//     commenter: comment1._id,
+//   });
+//   newComment
+//     .save()
+//     .then((result) => {
+//       res.status(201);
+//       res.json(result);
+//       Articles.findOneAndUpdate(
+//         { _id: id },
+//         { $push: { comments: newComment } },
+//         { new: true }
+//       )
+//         .then((result) => {
+//           res.json(result);
+//         })
+//         .catch((err) => {
+//           console.log(err);
+//         });
+//     })
+//     .catch((err) => {
+//       res.json(err);
+//     });
+// };
+// app.post("/articles/:id/comments", createNewComment);
 
 //3.A Authentication :CARD#1>>>createNewAuthor [level 2]:
 
@@ -436,6 +436,60 @@ const login = async (req, res) => {
 };
 app.post("/login", login);
 
+//3.A Authentication :CARD#3>>>createNewComment [level 2]:
+
+const createNewComment = async (req, res) => {
+  id = req.params.id;
+  const { comment, commenter } = req.body;
+  const authentication = (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
+    jwt.verify(token, secret, (err, result) => {
+      if (err) {
+        err = {
+          message: "The token is in valid or expired",
+          status: 403,
+        };
+        res.status(403);
+        return res.json(err);
+      }
+    });
+  };
+  authentication(req, res);
+  let comment1;
+  await Users.findOne({ _id: commenter })
+    .then((result) => {
+      comment1 = result;
+      console.log(comment1);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  const newComment = new Comments({
+    comment,
+    commenter: comment1._id,
+  });
+  newComment
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+      Articles.findOneAndUpdate(
+        { _id: id },
+        { $push: { comments: newComment } },
+        { new: true }
+      )
+        .then((result) => {
+          res.json(result);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.post("/articles/:id/comments", createNewComment);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
