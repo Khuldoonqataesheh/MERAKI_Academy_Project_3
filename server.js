@@ -8,6 +8,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { uuid } = require("uuidv4");
 app.use(express.json());
+const secret = process.env.SECRET;
 
 const articles = [
   {
@@ -312,29 +313,29 @@ app.delete("/articles", deleteArticlesByAuthor);
 
 //Server (express) [Level 2] :CARD#2>>>login:
 
-const login = (req, res) => {
-  const { email, password } = req.body;
-  Users.findOne({ email: email, password: password })
-    .then((result) => {
-      if (result) {
-        res.status(200);
-        res.json("Valid login credentials");
-      } else {
-        res.status(401);
-        res.json("Invalid login credentials");
-      }
-    })
-    .catch((err) => {
-      res.status(401);
-      res.json("Invalid login credentials");
-    });
-};
-app.post("/login", login);
+// const login = (req, res) => {
+//   const { email, password } = req.body;
+//   Users.findOne({ email: email, password: password })
+//     .then((result) => {
+//       if (result) {
+//         res.status(200);
+//         res.json("Valid login credentials");
+//       } else {
+//         res.status(401);
+//         res.json("Invalid login credentials");
+//       }
+//     })
+//     .catch((err) => {
+//       res.status(401);
+//       res.json("Invalid login credentials");
+//     });
+// };
+// app.post("/login", login);
 
 //Server (express) [Level 2] :CARD#3>>>createNewComment:
 
 const createNewComment = async (req, res) => {
-  id = req.params.id
+  id = req.params.id;
   const { comment, commenter } = req.body;
   let comment1;
   await Users.findOne({ _id: commenter })
@@ -354,13 +355,17 @@ const createNewComment = async (req, res) => {
     .then((result) => {
       res.status(201);
       res.json(result);
-      Articles.findOneAndUpdate({ _id: id }, { $push: { comments: newComment } },
-        { new: true }).then((result) => {
+      Articles.findOneAndUpdate(
+        { _id: id },
+        { $push: { comments: newComment } },
+        { new: true }
+      )
+        .then((result) => {
           res.json(result);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     })
     .catch((err) => {
       res.json(err);
@@ -368,7 +373,7 @@ const createNewComment = async (req, res) => {
 };
 app.post("/articles/:id/comments", createNewComment);
 
-//Server (express) [Level 3] :CARD#1>>>createNewAuthor:
+//3.A Authentication :CARD#1>>>createNewAuthor [level 2]:
 
 const createNewAuthor = (req, res) => {
   const { firstName, lastName, age, country, email, password } = req.body;
@@ -391,6 +396,46 @@ const createNewAuthor = (req, res) => {
     });
 };
 app.post("/users", createNewAuthor);
+
+//3.A Authentication :CARD#2>>>login [level 2]:
+
+const login = async (req, res) => {
+  let { email, password } = req.body;
+  email = email.toLowerCase();
+  Users.findOne({ email: email })
+    .then(async (result) => {
+      let user = result;
+      await bcrypt.compare(password, result.password, (err, result) => {
+        console.log(result);
+        if (result) {
+          const payload = {
+            userId: user._id,
+            country: user.country,
+          };
+          const options = {
+            expiresIn: "60min",
+          };
+          let token = jwt.sign(payload, secret, options);
+          token = { token };
+          res.json(token);
+        } else {
+          err = {
+            message: "The password you’ve entered is incorrect",
+            status: 403,
+          };
+          res.status(403);
+          res.json(err);
+        }
+      });
+    })
+    .catch((err) => {
+      err = { message: "The email doesn't exist", status: 404 };
+      res.status(404);
+      res.json(err);
+    });
+};
+app.post("/login", login);
+
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
