@@ -1,7 +1,7 @@
 const express = require("express");
 const port = 5000;
 const db = require("./project_3_v01");
-const { Users, Articles, Comments } = require("./users");
+const { Users, Articles, Comments, Roles } = require("./users");
 const app = express();
 const bcrypt = require("bcrypt");
 require("dotenv").config();

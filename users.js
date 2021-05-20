@@ -27,9 +27,17 @@ users.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+const role = new mongoose.Schema({
+  role: { type: String },
+  permissions: [{ type: String}],
+});
+
+
+
 const Users = mongoose.model("User", users);
 const Articles = mongoose.model("Article", articles);
 const Comments = mongoose.model("Comment", comments);
+const Roles = mongoose.model("Role", role);
 module.exports.Users = Users;
 module.exports.Articles = Articles;
 module.exports.Comments = Comments;
