@@ -376,7 +376,7 @@ app.delete("/articles", deleteArticlesByAuthor);
 //3.A Authentication :CARD#1>>>createNewAuthor [level 2]:
 
 const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password } = req.body;
+  const { firstName, lastName, age, country, email, password,role } = req.body;
   const newAuthor = new Users({
     firstName,
     lastName,
@@ -384,6 +384,7 @@ const createNewAuthor = (req, res) => {
     country,
     email,
     password,
+    role
   });
   newAuthor
     .save()
@@ -411,13 +412,14 @@ const login = async (req, res) => {
           const payload = {
             userId: user._id,
             country: user.country,
-            role: user.role
+            role: user.role,
           };
           const options = {
             expiresIn: "60min",
           };
           let token = jwt.sign(payload, secret, options);
           token = { token };
+          console.log(payload);
           res.json(token);
         } else {
           err = {
@@ -439,7 +441,10 @@ app.post("/login", login);
 
 //3.A Authentication :CARD#3>>>createNewComment [level 2]:
 
-const authentication = (req, res) => {
+const authentication = (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.json("you didn't send token");
+  }
   const token = req.headers.authorization.split(" ")[1];
   jwt.verify(token, secret, (err, result) => {
     if (err) {
@@ -447,11 +452,12 @@ const authentication = (req, res) => {
         message: "The token is in valid or expired",
         status: 403,
       };
-      if(result){
-        
-      }
       res.status(403);
       return res.json(err);
+    }
+    if (result) {
+      req.token = token
+      next();
     }
   });
 };
@@ -459,7 +465,6 @@ const authentication = (req, res) => {
 const createNewComment = async (req, res) => {
   id = req.params.id;
   const { comment, commenter } = req.body;
-  authentication(req, res);
   let comment1;
   await Users.findOne({ _id: commenter })
     .then((result) => {
@@ -477,24 +482,43 @@ const createNewComment = async (req, res) => {
     .save()
     .then((result) => {
       res.status(201);
-      res.json(result);
-      Articles.findOneAndUpdate(
+
+      Articles.updateOne(
         { _id: id },
         { $push: { comments: newComment } },
         { new: true }
       )
-        .then((result) => {
-          res.json(result);
-        })
+        .then((result) => {})
         .catch((err) => {
           console.log(err);
         });
+      res.json(result);
     })
     .catch((err) => {
       res.json(err);
     });
 };
-app.post("/articles/:id/comments", createNewComment);
+app.post("/articles/:id/comments", authentication, createNewComment);
+
+//3.B Authorization :
+const createNewRole = (req, res) => {
+  const {role, permissions} = req.body;
+  const newRole= new Roles({
+    role,
+    permissions
+  });
+  newRole
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+
+app.post("/role",createNewRole);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

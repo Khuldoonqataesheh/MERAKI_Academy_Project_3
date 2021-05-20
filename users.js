@@ -8,13 +8,13 @@ const users = new mongoose.Schema({
   country: { type: String },
   email: { type: String },
   password: { type: String },
+  role:{type:mongoose.Schema.ObjectId,ref:"Role"}
 });
 const articles = new mongoose.Schema({
   title: { type: String },
   description: { type: String },
   author: { type: mongoose.Schema.ObjectId, ref: "User" },
   comments: [{ type: mongoose.Schema.ObjectId, ref: "Comment" }],
-  role:{type:mongoose.Schema.ObjectId,ref:"Role"}
 });
 
 const comments = new mongoose.Schema({
@@ -31,6 +31,7 @@ users.pre("save", async function () {
 const role = new mongoose.Schema({
   role: { type: String },
   permissions: [{ type: String}],
+
 });
 
 
@@ -39,6 +40,8 @@ const Users = mongoose.model("User", users);
 const Articles = mongoose.model("Article", articles);
 const Comments = mongoose.model("Comment", comments);
 const Roles = mongoose.model("Role", role);
+
 module.exports.Users = Users;
 module.exports.Articles = Articles;
 module.exports.Comments = Comments;
+module.exports.Roles = Roles;
