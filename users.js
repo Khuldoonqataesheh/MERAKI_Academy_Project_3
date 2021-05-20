@@ -14,6 +14,7 @@ const articles = new mongoose.Schema({
   description: { type: String },
   author: { type: mongoose.Schema.ObjectId, ref: "User" },
   comments: [{ type: mongoose.Schema.ObjectId, ref: "Comment" }],
+  role:{type:mongoose.Schema.ObjectId,ref:"Role"}
 });
 
 const comments = new mongoose.Schema({
