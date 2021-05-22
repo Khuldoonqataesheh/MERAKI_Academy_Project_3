@@ -376,7 +376,7 @@ app.delete("/articles", deleteArticlesByAuthor);
 //3.A Authentication :CARD#1>>>createNewAuthor [level 2]:
 
 const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password,role } = req.body;
+  const { firstName, lastName, age, country, email, password, role } = req.body;
   const newAuthor = new Users({
     firstName,
     lastName,
@@ -384,7 +384,7 @@ const createNewAuthor = (req, res) => {
     country,
     email,
     password,
-    role
+    role,
   });
   newAuthor
     .save()
@@ -398,7 +398,7 @@ const createNewAuthor = (req, res) => {
 };
 app.post("/users", createNewAuthor);
 
-//3.A Authentication :CARD#2>>>login [level 2]:
+//3.A Authentication :CARD#2>>>login [level 3]:
 
 const login = async (req, res) => {
   let { email, password } = req.body;
@@ -419,7 +419,6 @@ const login = async (req, res) => {
           };
           let token = jwt.sign(payload, secret, options);
           token = { token };
-          console.log(payload);
           res.json(token);
         } else {
           err = {
@@ -456,8 +455,49 @@ const authentication = (req, res, next) => {
       return res.json(err);
     }
     if (result) {
-      req.token = token
+      req.token = token;
+      console.log(result);
       next();
+    }
+  });
+};
+//3.B Authorization :CARD#5>>>createNewComment [Level 3]:
+
+const authorization = (req, res, next) => {
+  token = req.token;
+  commenter = req.body.commenter;
+  console.log(req.token);
+  jwt.verify(token, secret, async (err, result) => {
+    if (err) {
+      err = {
+        message: "The token is in valid or expired",
+        status: 403,
+      };
+      res.status(403);
+      return res.json(err);
+    }
+    if (result) {
+      await Roles.findOne({ _id: result.role })
+        .then((result) => {
+          array = result.permissions;
+          if (array) {
+            for (let i = 0; i < array.length; i++) {
+              if (array[i] === "CREATE_COMMENTS") {
+                next();
+              }
+            }
+          } else {
+            err = {
+              message: "forbidden",
+              status: 403,
+            };
+            res.status(403);
+            return res.json(err);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   });
 };
@@ -498,14 +538,19 @@ const createNewComment = async (req, res) => {
       res.json(err);
     });
 };
-app.post("/articles/:id/comments", authentication, createNewComment);
+app.post(
+  "/articles/:id/comments",
+  authentication,
+  authorization,
+  createNewComment
+);
 
-//3.B Authorization :
+//3.B Authorization :>>>Role API:
 const createNewRole = (req, res) => {
-  const {role, permissions} = req.body;
-  const newRole= new Roles({
+  const { role, permissions } = req.body;
+  const newRole = new Roles({
     role,
-    permissions
+    permissions,
   });
   newRole
     .save()
@@ -518,7 +563,7 @@ const createNewRole = (req, res) => {
     });
 };
 
-app.post("/role",createNewRole);
+app.post("/role", createNewRole);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
